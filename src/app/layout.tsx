@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/components/AuthProvider";
+import logo_white from "@/../public/logo_white.png";
+import Image from "next/image";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  variable: "--font-inter",
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,11 +21,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-br">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.className} antialiased `}
       >
-        {children}
+        <Image 
+          src={logo_white}
+          alt="Logo"
+          width={150}
+          height={150}
+          className="fixed top-4 left-4 z-50 shadow-lg shadow-slate-800 bg-slate-700 rounded-2xl"
+          priority
+        />
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
