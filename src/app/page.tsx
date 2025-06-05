@@ -23,8 +23,15 @@ export default function Home() {
   }
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <h1>Crie suas notas!</h1>
+    <div className="flex flex-col items-center h-screen">
+      <form className="max-w-3xl w-full mt-10">
+        <input
+          type="text"
+          placeholder='Busque suas notas...'
+          className='w-full bg-transparent text-2xl text-slate-800 rounded-2xl p-4 font-semibold tracking-tight outline-none placeholder:text-slate-500'
+        />
+        <div className="h-px bg-slate-600"></div>
+      </form>
     </div>
   );
 }
