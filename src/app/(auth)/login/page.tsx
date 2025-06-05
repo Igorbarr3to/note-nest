@@ -2,7 +2,7 @@
 
 import ResetPasswordModal from "@/components/resetPasswordModal";
 import { auth } from "@/lib/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,6 +10,8 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -23,7 +25,45 @@ export default function LoginPage() {
         }
         catch (error: any) {
             console.error("Login failed:", error);
-            alert(error.message);
+        }
+    }
+
+    const handleResetPassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setMessage(null);
+        setLoading(true);
+
+        if (!email) {
+            setError("Por favor, insira um e-mail válido.");
+            setLoading(false);
+            setEmail('');
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, email);
+            setMessage("E-mail de redefinição de senha enviado com sucesso!");
+            setLoading(false);
+            setEmail('');
+        }
+        catch (error: any) {
+            let errorMessage = "Ocorreu um erro ao enviar o e-mail de redefinição de senha. Por favor, tente novamente mais tarde.";
+            switch (error.code) {
+                case 'auth/invalid-email':
+                    errorMessage = "O endereço de e-mail é inválido.";
+                    break;
+                case 'auth/user-not-found':
+                    errorMessage = "Não há registro de usuário correspondente a este e-mail. Por favor, verifique o e-mail digitado.";
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = "Muitas solicitações. Por favor, tente novamente mais tarde.";
+                    break;
+                default:
+                    errorMessage = `Erro: ${error.message}`;
+                    break;
+            }
+            setError(errorMessage);
         }
     }
 
@@ -49,18 +89,24 @@ export default function LoginPage() {
                     required
                 />
 
-                <ResetPasswordModal />
-
                 <button
                     type="submit"
                     className="p-2 bg-slate-800 text-white rounded hover:bg-slate-100 border border-black
                     hover:text-slate-900 hover:transition-colors duration-400">
                     Login
                 </button>
+                <p>Não tem uma conta? <a href="/register" className="text-blue-900 font-semibold hover:underline">cadastre-se aqui!</a></p>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
             </form>
 
-            <p>Não tem uma conta? <a href="/register" className="text-blue-900 font-semibold hover:underline">cadastre-se aqui!</a></p>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <ResetPasswordModal
+                email={email}
+                setEmail={setEmail}
+                message={message}
+                error={error}
+                loading={loading}
+                handleResetPassword={handleResetPassword}
+            />
         </div>
     )
 
